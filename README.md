@@ -45,35 +45,19 @@ The normalized confusion matrix highlights the classification accuracy:
 ## 🎯 Part 2: Tracker Implementation & Comparison
 Detecting the flies is only half the challenge; maintaining unique IDs across frames (when flies overlap or move erratically) requires robust tracking logic. Four trackers were implemented and evaluated.
 
-### Visual Tracking Results
-*(Note: Click the videos below to download/play the `.mp4` outputs directly from the repository)*
 
-<table>
-  <tr>
-    <td align="center">
-      <b>SimpleIoU</b><br>
-      <video src="output/output_SimpleIoU.mp4" controls width="100%"></video><br>
-      <i>Fast baseline, but drops IDs during overlap.</i>
-    </td>
-    <td align="center">
-      <b>ByteTrack</b><br>
-      <video src="output/output_ByteTrack.mp4" controls width="100%"></video><br>
-      <i>Highly resilient to temporary occlusion.</i>
-    </td>
-  </tr>
-  <tr>
-    <td align="center">
-      <b>Custom SORT</b><br>
-      <video src="output/output_CustomSORT.mp4" controls width="100%"></video><br>
-      <i>Utilizes Kalman Filters for linear motion.</i>
-    </td>
-    <td align="center">
-      <b>BoTSORT</b><br>
-      <video src="output/output_BoTSORT.mp4" controls width="100%"></video><br>
-      <i>Integrates camera motion compensation.</i>
-    </td>
-  </tr>
-</table>
+### Visual Tracking Results
+*(Click on any video to watch the tracking in action)*
+
+| SimpleIoU Baseline | ByteTrack (Advanced) |
+| :---: | :---: |
+| [![SimpleIoU](https://img.youtube.com/vi/rxhE6NRB6gA/0.jpg)](https://youtu.be/rxhE6NRB6gA) | [![ByteTrack](https://img.youtube.com/vi/NhJX9miisLs/0.jpg)](https://youtu.be/NhJX9miisLs) |
+| *Fast baseline, but drops IDs during heavy overlap.* | *Highly resilient to temporary occlusion. (Recommended)* |
+
+| Custom SORT | BoTSORT |
+| :---: | :---: |
+| [![CustomSORT](https://img.youtube.com/vi/A4ZOOHumD-Y/0.jpg)](https://youtu.be/A4ZOOHumD-Y) | [![BoTSORT](https://img.youtube.com/vi/J6r63uEs5D4/0.jpg)](https://youtu.be/J6r63uEs5D4) |
+| *Utilizes Kalman Filters for linear motion prediction.* | *Integrates camera motion compensation for dynamic drone footage.* |
 
 ### Quantitative Analysis
 The JSON metrics located in the `output/` directory confirm the performance trade-offs:
