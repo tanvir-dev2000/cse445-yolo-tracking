@@ -1,0 +1,15 @@
+# Ignore datasets
+dataset/
+dataset_augmented/
+
+# Ignore heavy video outputs
+*.mp4
+*.avi
+
+# Ignore heavy PyTorch model weights (but keep the graphs!)
+*.pt
+*.pth
+weights/
+
+# Ignore Jupyter Notebook checkpoints
+.ipynb_checkpoints/
