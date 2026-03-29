@@ -4,77 +4,86 @@
 [![RF-DETR Notebook](https://img.shields.io/badge/Kaggle-RF_DETR_Tracking-blue?logo=kaggle)](https://www.kaggle.com/code/istwestkhan/cse445-assignment1-f-rf-detr)
 
 ## 📌 Project Overview
-This repository contains a complete computer vision pipeline designed to detect and track greenflies in both static images and drone video footage. The project tackles the challenge of identifying small, clustered insects against complex organic backgrounds. 
-
-The pipeline evaluates two distinct architectural paradigms: the high-speed **YOLOv26 (CNN-based)** and the context-aware **RF-DETR (Transformer-based)**. We compare four standard trackers (**SimpleIoU, Custom SORT, ByteTrack, and BoTSORT**) against a custom-trained Transformer tracking implementation to determine the most robust solution for identity maintenance.
+This repository contains a complete computer vision pipeline designed to detect and track greenflies in drone video footage. The project tackles the challenge of identifying small, clustered insects against complex organic backgrounds by evaluating two distinct architectural paradigms: the high-speed **YOLOv26 (CNN-based)** and the context-aware **RF-DETR (Transformer-based)**. 
 
 ---
 
 ## 📊 Part 1: YOLOv26 Training & Performance Analysis
-The model was trained on an augmented dataset comprising 3,256 `greenfly` and 3,543 `notgreenfly` instances. Training was conducted over 42 epochs.
+The YOLOv26 model was trained over 42 epochs on a dataset containing 3,256 greenfly instances.
 
-### 1. Training Convergence & Metrics
+### 1. Final Training Metrics (Epoch 42)
+| Metric | Value |
+| :--- | :--- |
+| **mAP@50** | 0.9373 |
+| **mAP@50-95** | 0.5517 |
+| **Precision** | 0.9107 |
+| **Recall** | 0.8897 |
+| **Total Training Time** | ~1.44 Hours |
+
+### 2. Convergence & Spatial Analysis
 <img src="runs/detect/greenfly_yolo26_train_optimized/results.png" width="800"> 
 
-* **Convergence:** The model converged smoothly, reaching a final `train/box_loss` of 0.941 and `train/cls_loss` of 0.312. 
-* **Augmentation Strategy:** A sharp drop in training loss is visible at Epoch 41. This indicates the successful disabling of mosaic augmentation during the final stages, allowing the model to fine-tune on true spatial distributions.
-* **Overall Accuracy:** The model achieved a highly impressive **mAP@0.5 of 0.937** across all classes.
+*   **Box & Class Loss:** The model reached a stable plateau with a final `train/box_loss` of 0.941 and `train/cls_loss` of 0.312.
+*   **Augmentation Strategy:** A sharp drop in training loss at Epoch 41 signifies the successful disabling of mosaic augmentation, allowing the model to optimize for true spatial distributions.
 
-### 2. Precision-Recall & F1 Confidence
+### 3. Precision-Recall & Confusion Matrix
 | Precision-Recall (mAP) | F1-Confidence Curve |
 | :---: | :---: |
 | <img src="runs/detect/greenfly_yolo26_train_optimized/BoxPR_curve.png" width="400"> | <img src="runs/detect/greenfly_yolo26_train_optimized/BoxF1_curve.png" width="400"> |
 
-* **Greenfly:** 0.911 mAP@0.5
-* **Not Greenfly:** 0.963 mAP@0.5
-* The curves demonstrate that the model maintains high precision even as recall increases, effectively identifying small insects without flagging background noise.
-
-### 3. Confusion Matrix Analysis
 <img src="runs/detect/greenfly_yolo26_train_optimized/confusion_matrix_normalized.png" width="600">
 
-* **True Positives:** The model achieves **92% accuracy** for greenflies and **94% accuracy** for non-greenflies.
-* **Background Confusion:** Only 7% of background elements were incorrectly classified as greenflies, a highly optimized result for small-object detection in organic textures.
+*   **Accuracy:** The model achieves **92% accuracy** for greenflies and **94% accuracy** for non-greenflies, with only 7% background confusion.
 
 ### 4. Bounding Box Density Heatmap
 <img src="runs/detect/greenfly_yolo26_train_optimized/labels.jpg" width="600">
 
-* **Spatial Distribution:** The `x` and `y` heatmaps reveal a strong central clustering, indicating the model is optimized for center-of-frame tracking typical of drone footage.
-* **Size Profile:** The width/height heatmaps confirm a high density of small, uniform bounding boxes, perfectly matching the insect profiles.
+*   **Spatial Distribution:** The heatmaps show strong central clustering, confirming the model is optimized for center-of-frame tracking typical in drone flyovers.
 
 ---
 
-## 🎯 Part 2: Tracker Implementation & Comparison
-Maintaining unique IDs during overlaps and erratic movement is critical for accurate entomological data.
+## 🤖 Part 2: RF-DETR (Transformer) Implementation
+The RF-DETR model was trained as a comparative architecture to leverage global self-attention for tracking stability.
+
+### 1. Model Configuration & Results
+*   **Trainable Parameters:** 30.5 Million
+*   **Best Regular mAP:** 0.5652
+*   **Best EMA mAP:** 0.575
+*   **Training Duration:** 15 epochs
+
+Unlike CNNs, this transformer architecture removes the need for Non-Maximum Suppression (NMS), allowing for more precise handling of dense object clusters.
+
+---
+
+## 🎯 Part 3: Tracker Implementation & Comparison
+Maintaining identity continuity during erratic movement is the primary challenge in insect tracking.
 
 ### 🎥 Visual Tracking Results
 *(Click on any thumbnail to watch the full HD tracking demo on YouTube)*
 
-| SimpleIoU Baseline | ByteTrack (Optimal) | RF-DETR (Transformer) |
+| SimpleIoU Baseline | ByteTrack (Optimal) | RF-DETR (Custom) |
 | :---: | :---: | :---: |
 | [![SimpleIoU](https://img.youtube.com/vi/rxhE6NRB6gA/0.jpg)](https://youtu.be/rxhE6NRB6gA) | [![ByteTrack](https://img.youtube.com/vi/NhJX9miisLs/0.jpg)](https://youtu.be/NhJX9miisLs) | [![RF-DETR](https://img.youtube.com/vi/kZuW9QL2oro/0.jpg)](https://youtu.be/kZuW9QL2oro) |
-| *Fast baseline; high fragmentation.* | *Resilient; best speed/accuracy.* | *Maximum stability; Lowest ID switches.* |
+| *Fast; struggles with occlusion.* | *Highly resilient ID continuity.* | *Transformer-based set prediction.* |
 
 | Custom SORT | BoTSORT |
 | :---: | :---: |
 | [![CustomSORT](https://img.youtube.com/vi/A4ZOOHumD-Y/0.jpg)](https://youtu.be/A4ZOOHumD-Y) | [![BoTSORT](https://img.youtube.com/vi/J6r63uEs5D4/0.jpg)](https://youtu.be/J6r63uEs5D4) |
-| *Kalman-stabilized motion prediction.* | *Integrated camera motion compensation.* |
+| *Kalman Filter stabilization.* | *Camera motion compensation.* |
 
 ### 📊 Quantitative Performance Comparison
 
 | Model + Tracker | Avg FPS | Total IDs | ID Switches | Performance Tier |
 | :--- | :--- | :--- | :--- | :--- |
-| **SimpleIoU** | 30.60 | 38 | 17 | Baseline (High Fragmentation) |
-| **Custom SORT** | 30.95 | 36 | 16 | Kalman-stabilized Baseline |
-| **ByteTrack** | **32.73** | 13 | 6 | **Efficiency Leader** |
-| **BoTSORT** | 20.31 | **12** | 6 | High Stability / Computationally Heavy |
-| **RF-DETR (Custom)** | 13.58 | 13 | **3** | **Precision Leader (Transformers)** |
+| **SimpleIoU** | 30.60 | 38 | 17 | Baseline (Fragmented) |
+| **Custom SORT** | 30.95 | 36 | 16 | Kalman-stabilized |
+| **ByteTrack** | **32.73** | 13 | 6 | **Efficiency Champion** |
+| **BoTSORT** | 20.31 | **12** | 6 | Maximum Stability / Slow |
+| **RF-DETR (Custom)** | 13.58 | 13 | **3** | **Precision Champion** |
 
-**Analytical Deep Dive:**
-* **Identity Continuity:** **RF-DETR** is the superior architecture for identity maintenance, achieving a significant reduction in **ID Switches (only 3)**. Its transformer-based global attention allows it to track objects through occlusions that cause CNN-based trackers to trigger new IDs.
-* **Inference Speed:** **ByteTrack** remains the champion for real-time deployment, providing **32.73 FPS** (over 2x faster than RF-DETR) while keeping ID switches relatively low.
-* **Deployment Context:** For real-time drone monitoring, ByteTrack is preferred. For high-precision research analysis where processing time is secondary to tracking accuracy, RF-DETR is the optimal choice.
+---
 
-### 🗺️ Spatial Tracking Density Analysis
+## 🗺️ Spatial Tracking Density Analysis
 These heatmaps highlight where each tracker maintained the most consistent ID presence throughout the drone footage.
 
 | SimpleIoU Heatmap | ByteTrack Heatmap |
@@ -87,11 +96,12 @@ These heatmaps highlight where each tracker maintained the most consistent ID pr
 
 ---
 
-## 🤖 Part 3: RF-DETR (Transformer) Implementation
-The **RF-DETR** model was trained using a COCO-converted version of the dataset. This architecture removes the need for Non-Maximum Suppression (NMS) and excels at global context.
+## 🔍 Final Analysis: The "Stability vs. Speed" Trade-off
 
-* **Stability metrics:** 13 Total IDs with an estimated 6 Lost Tracks.
-* **Transformer Advantage:** Unlike standard IoU-based tracking, the transformer architecture treats tracking as a set-prediction problem, resulting in the lowest ID switch rate (3) in the entire pipeline.
+> **Technical Insight:** 
+> Our results indicate a clear architectural split. **RF-DETR** achieved the lowest identity switches in the entire pipeline (**3 switches**), representing a **50% improvement** over ByteTrack. However, this comes at a computational cost, with RF-DETR running at **13.58 FPS** compared to ByteTrack's **32.73 FPS**. 
+>
+> For real-time drone deployment, **ByteTrack** is the overall winner. For high-fidelity biological research where tracking accuracy is paramount, **RF-DETR** is the superior tool.
 
 ---
 
